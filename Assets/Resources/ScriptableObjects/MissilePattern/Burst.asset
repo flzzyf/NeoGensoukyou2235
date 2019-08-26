@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae4a4c5332310d640bb4b2e10be9873e, type: 3}
+  m_Name: Burst
+  m_EditorClassIdentifier: 
+  angle: 60
+  amount: 6
+  targetType: 1
+  missilePrefab: {fileID: 6886119752508822168, guid: 60792a709247db249a7e39ee33e80e29,
+    type: 3}
+  damage: 1
+  speed: 9

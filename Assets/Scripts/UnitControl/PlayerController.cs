@@ -1,60 +1,92 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-	Vector2 input;
+	PlayerControls controls;
 
 	public Unit unit;
 
-	float lastInputH;
+	Vector2 input;
+	Vector2 lastInput;
 
-    void Update()
-    {
-		input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxis("Vertical"));
+	private void Awake()
+	{
+		controls = new PlayerControls();
 
-		if (unit.isDead)
-			return;
+		//按钮
+		controls.GamePlay.Attack.performed += ctx => Attack();
 
-		if(Input.GetKeyDown("space"))
-		{
-			unit.Jump();
-		}
+		controls.GamePlay.Jump.performed += ctx => Jump();
+		controls.GamePlay.Jump.canceled += ctx => JumpCanceled();
 
-		if (Input.GetKeyUp("space"))
-		{
-			unit.JumpCancel();
-		}
+		controls.GamePlay.Roll.performed += ctx => Roll();
+		controls.GamePlay.Item.performed += ctx => UseItem();
 
-		if(Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.JoystickButton9))
-		{
-			Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-			Vector2 dir = mousePos - unit.centerPoint;
-
-			unit.Attack(dir);
-		}
+		//摇杆
+		controls.GamePlay.Move.performed += ctx => input = ctx.ReadValue<Vector2>();
+		controls.GamePlay.Move.canceled += ctx => input = Vector2.zero;
 	}
 
-	private void FixedUpdate()
+	private void Update()
 	{
-		if (unit.isDead)
-			return;
-
-		if (input.x != 0)
+		//移动判定
+		if(!unit.acting)
 		{
-			unit.Move(input.x);
+			if(input.x != lastInput.x)
+			{
+				if (input.x != 0)
+				{
+					unit.Move(input.x);
+				}
+				else
+				{
+					unit.StopMoving();
+				}
+			}
+
+			lastInput = input;
 		}
 		else
 		{
-			if (input.x != lastInputH)
-			{
-				unit.StopMoving();
-			}
+			lastInput = Vector2.zero;
 		}
-		
+	}
 
-		lastInputH = input.x;
+	private void OnEnable()
+	{
+		controls.GamePlay.Enable();
+	}
 
+	private void OnDisable()
+	{
+		controls.GamePlay.Disable();
+	}
+
+	void Attack()
+	{
+		unit.Attack2();
+	}
+
+	void Jump()
+	{
+		unit.Jump();
+	}
+
+	void JumpCanceled()
+	{
+		unit.JumpCancel();
+	}
+
+	void Roll()
+	{
+		unit.Roll();
+	}
+
+	void UseItem()
+	{
+		unit.UseItem();
 	}
 }

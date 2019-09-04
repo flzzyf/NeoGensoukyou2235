@@ -32,7 +32,6 @@ public class SoundManager : Singleton<SoundManager>
 	//从闲置声道播放声音，如果有的话
 	public void PlaySound(Sound sound, bool isBGM = false)
 	{
-		print("qwe");
 		AudioSource source;
 		if(isBGM)
 		{

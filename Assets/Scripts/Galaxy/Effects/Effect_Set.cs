@@ -5,7 +5,7 @@ using System.Collections.Generic;
 [CreateAssetMenu(menuName = "ScriptableObjects/Effect/Set")]
 public class Effect_Set : Effect
 {
-    public Effect[] effects = new Effect[1];
+    public Effect[] effects;
 
     public override void Trigger()
     {

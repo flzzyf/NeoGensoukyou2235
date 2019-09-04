@@ -29,4 +29,11 @@ public class Effect : ScriptableObject
 
         Trigger();
     }
+
+	public virtual void Trigger(Unit caster)
+	{
+		this.caster = caster;
+
+		Trigger();
+	}
 }

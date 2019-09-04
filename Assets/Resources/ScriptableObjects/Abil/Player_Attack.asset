@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Player_Attack
   m_EditorClassIdentifier: 
   targetType: 0
-  effect: {fileID: 0}
-  areaEffect: {fileID: 0}
+  castEffect: {fileID: 0}
+  areaEffect: {fileID: 11400000, guid: 6f7bcb6d6f2f75b4788d10e041e549d7, type: 2}
   anim: 2
   preswingTime: 0
-  swingTime: 0.5
-  backswingTime: 0
-  canCastInTheAir: 1
+  swingTime: 0.1
+  backswingTime: 0.3
+  canCastInTheAir: 0

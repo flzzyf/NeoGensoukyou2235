@@ -10,77 +10,45 @@ public class Unit : MonoBehaviour
 
 	public Vector2 centerPoint { get { return (Vector2)transform.position + Vector2.up * rb.boxCollider.transform.localScale.y / 2; } }
 
-	Actor actor;
+	[HideInInspector]
+	public Actor actor;
+
+	public bool acting { get { return abilController.acting; } }
+
+	//无敌状态
+	public bool invincible;
 
 	void Awake()
 	{
 		rb = GetComponent<RigidbodyBox>();
 
 		actor = GetComponentInChildren<Actor>();
+
+		abilController = GetComponent<AbilController>();
 	}
 
 	void Start()
     {
 		InitJumpVelocity();
+		InitHp();
 
 		rb.onLeaveGround += LeaveGround;
 		rb.onLand += Land;
     }
 
-	public CircleCollider2D attackArea;
-	public LayerMask targetMask;
-
-	public Transform areaDisplay;
-
-	private void Update()
-	{
-		if (attackArea == null)
-			return;
-
-		if(attackArea.radius > 0.1f)
-		{
-			Vector2 offset = (Vector2)transform.position + attackArea.offset * new Vector2(facing, 1);
-			
-			foreach (var item in Physics2D.OverlapCircleAll(offset, attackArea.radius, targetMask))
-			{
-				Vector2 dir = item.transform.position - transform.position;
-				dir.Normalize();
-				item.GetComponent<Rigidbody2D>().AddForce(dir * 3, ForceMode2D.Impulse);
-			}
-
-			//效果范围指示器
-			if (areaDisplay != null)
-			{
-				areaDisplay.gameObject.SetActive(true);
-
-				areaDisplay.localPosition = attackArea.offset * new Vector2(facing, 1);
-
-				areaDisplay.localScale = Vector3.one * attackArea.radius * 2;
-			}
-		}
-		else
-		{
-			if (areaDisplay != null)
-				areaDisplay.gameObject.SetActive(false);
-		}
-	}
-
 	#region 移动
 
 	public void Move(float inputH)
 	{
-		if (isActing)
+		if (abilController.acting)
 			return;
 
 		rb.movingForce = new Vector2(inputH * speed, 0);
 
 		actor.Walk(Mathf.Abs(inputH));
 
-		if(inputH != 0)
-		{
-			//转向
-			FlipToward((int)Mathf.Sign(inputH));
-		}
+		//面向移动方向
+		FlipToward((int)Mathf.Sign(inputH));
 	}
 
 	public void StopMoving()
@@ -116,7 +84,7 @@ public class Unit : MonoBehaviour
 	public void Jump()
 	{
 		//接触地面才能跳
-		if (!rb.isOnGround || isActing)
+		if (!rb.isOnGround || abilController.acting)
 			return;
 
 		rb.AddForce(Vector2.up * jumpVelocity);
@@ -174,98 +142,6 @@ public class Unit : MonoBehaviour
 
 	#endregion
 
-	#region 攻击
-
-	public Abil abil_Attack;
-
-	Abil nextAbil;
-
-	//释放技能
-	public void CastAbil(Abil abil)
-	{
-		if(isActing)
-		{
-			nextAbil = abil;
-
-			return;
-		}
-
-		StartCoroutine(CastAbilCor(abil));
-	}
-
-	IEnumerator CastAbilCor(Abil abil)
-	{
-		//前摇
-		StopMoving();
-
-		isActing = true;
-
-
-		yield return new WaitForSeconds(abil.preswingTime);
-		//释放
-
-		yield return new WaitForSeconds(abil.swingTime);
-
-		yield return new WaitForSeconds(abil.backswingTime);
-		//后摇
-
-		isActing = false;
-	}
-
-	//将会发动攻击（预输入指令）
-	bool willAttack;
-
-	bool isActing;
-
-	//朝指定方向攻击
-	public void Attack(Vector2 targetPoint)
-	{
-		if(isActing)
-		{
-			if (!willAttack)
-				willAttack = true;
-
-			return;
-		}
-
-		//根据是否在空中影响是否滞空
-		if (!rb.isOnGround)
-			return;
-
-		StopMoving();
-
-		StartCoroutine(AttackCor());
-	}
-
-	IEnumerator AttackCor()
-	{
-		float attackTime = 1f;
-
-		isActing = true;
-
-		actor.Attack();
-
-		yield return new WaitForSeconds(attackTime);
-
-		isActing = false;
-
-
-		//继续下次攻击 
-		if (willAttack)
-		{
-			Attack(Vector3.zero);
-
-			willAttack = false;
-		}
-		else
-		{
-			actor.AttackEnd();
-
-		}
-	}
-
-	#endregion
-
 	#region 朝向
 
 	public bool facingRight = true;
@@ -276,9 +152,14 @@ public class Unit : MonoBehaviour
 	{
 		facingRight = !facingRight;
 
-		Vector3 scale = actor.transform.localScale;
-		scale.x *= -1;
-		actor.transform.localScale = scale;
+		actor.Flip();
+	}
+
+	public void FlipInSceneView()
+	{
+		facingRight = !facingRight;
+
+		GetComponent<Actor>().Flip();
 	}
 
 	//朝向目标方向，1为右，-1为左
@@ -345,8 +226,12 @@ public class Unit : MonoBehaviour
 		//没死
 		if (hpCurrent > amount)
 		{
-			print("TakeDamage");
-			//actor.animator.SetTrigger("Hit");
+			ModifyHp(-amount);
+
+			print("剩余生命：" + hpCurrent);
+
+			//播放被击动画
+			actor.Hit();
 		}
 		else
 		{
@@ -360,7 +245,9 @@ public class Unit : MonoBehaviour
 	{
 		isDead = true;
 
-		GameOverMgr.instance.GameOver();
+		Destroy(gameObject);
+
+		//GameOverMgr.instance.GameOver();
 	}
 
 	public void DieAnimEvent()
@@ -369,4 +256,29 @@ public class Unit : MonoBehaviour
 	}
 
 	#endregion
+
+	AbilController abilController;
+
+	public Abil[] abils;
+
+	public void CastAbil(Abil abil)
+	{
+		abilController.CastAbil(abil);
+	}
+
+	public void Attack2()
+	{
+		abilController.CastAbil(abils[0]);
+	}
+
+	public void Roll()
+	{
+		abilController.CastAbil(abils[1]);
+
+	}
+
+	public void UseItem()
+	{
+
+	}
 }

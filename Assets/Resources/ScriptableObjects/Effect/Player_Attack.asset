@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   caster: {fileID: 0}
   target: {fileID: 0}
-  targetType: 0
+  targetType: 2
   effects:
-  - {fileID: 0}
+  - {fileID: 11400000, guid: f31be1306084cb9468ce0345f30e4558, type: 2}
   delayTime: 0

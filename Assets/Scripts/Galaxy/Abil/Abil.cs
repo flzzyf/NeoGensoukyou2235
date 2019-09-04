@@ -17,10 +17,7 @@ public class Abil : ScriptableObject
     public AbilTargetType targetType;
 
 	//释放效果
-    public Effect effect;
-
-	//范围显示效果
-	//public Effect rangeDisplayEffect;
+    public Effect castEffect;
 
 	//范围效果
 	public Effect areaEffect;
@@ -34,15 +31,4 @@ public class Abil : ScriptableObject
 	//能在空中释放
 	public bool canCastInTheAir = false;
 
-    //释放技能
-    public void Cast(Unit caster)
-    {
-        if(targetType == AbilTargetType.Null)
-		{
-			if(effect != null)
-			{
-				effect.Trigger(caster, caster);
-			}
-		}
-    }
 }

@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a69cb5ac19d447c4b8b6c60c64c2995, type: 3}
+  m_Name: Roll
+  m_EditorClassIdentifier: 
+  targetType: 0
+  castEffect: {fileID: 11400000, guid: 80812000971f023428ea5a1f55ef9141, type: 2}
+  areaEffect: {fileID: 0}
+  anim: 9
+  preswingTime: 0
+  swingTime: 0.5
+  backswingTime: 0
+  canCastInTheAir: 0

@@ -304,7 +304,7 @@ public class RigidbodyBox : RaycastController
 		if (v.x != 0)
 			v.x = Mathf.Sign(v.x) * Mathf.Max(0, Mathf.Abs(v.x) - friction * Time.fixedDeltaTime);
 
-		if (v.y != 0)
+		if (v.y != 0 && !isOnGround)
 			v.y = Mathf.Sign(v.y) * Mathf.Max(0, Mathf.Abs(v.y) - friction * Time.fixedDeltaTime);
 	}
 
@@ -337,11 +337,11 @@ public class RigidbodyBox : RaycastController
 		{
 			if(isOnGround)
 			{
-				onLand();
+				onLand?.Invoke();
 			}
 			else
 			{
-				onLeaveGround();
+				onLeaveGround?.Invoke();
 			}
 		}
 
